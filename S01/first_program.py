@@ -17,3 +17,14 @@ qvm = WavefunctionSimulator()
 
 result = qvm.wavefunction(prog)
 print(result)
+
+"""
+SALIDA ESPERADA:
+================
+(1+0j)|0⟩
+
+EXPLICACIÓN:
+La puerta identidad I no modifica el estado del qubit. Como el estado inicial
+por defecto es |0⟩, la función de onda resultante es (1+0j)|0⟩, que representa
+el estado |0⟩ con amplitud compleja 1+0j (probabilidad 100% de medir 0).
+"""

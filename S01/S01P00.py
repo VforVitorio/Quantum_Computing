@@ -67,3 +67,33 @@ result = qvm.wavefunction(prog)
 # Imprime la función de onda como array de amplitudes complejas
 # [1+0j, 0+0j] indica que el qubit está completamente en el estado |0⟩
 print(result)
+
+# Importa la compuerta X (Pauli-X o NOT cuántico)
+from pyquil.gates import X
+
+# Añade al programa existente la compuerta X aplicada al qubit 0
+# X es la compuerta NOT cuántica: invierte |0⟩ a |1⟩ y viceversa
+prog.inst(X(0))
+
+# Ejecuta nuevamente la simulación con el programa modificado (I seguido de X)
+# Como I(0) no hace nada, el resultado es equivalente a solo aplicar X(0)
+result = qvm.wavefunction(prog)
+# Imprime la nueva función de onda
+# [0+0j, 1+0j] indica que el qubit ahora está en el estado |1⟩
+print(result)
+
+"""
+SALIDA ESPERADA:
+================
+Primera impresión:
+(1+0j)|0⟩
+
+Segunda impresión:
+(1+0j)|1⟩
+
+EXPLICACIÓN:
+El programa primero aplica la puerta identidad I(0), que no modifica el estado inicial |0⟩.
+Luego añade la puerta X(0) (NOT cuántico) al programa, que invierte el qubit de |0⟩ a |1⟩.
+La puerta X es el análogo cuántico de la compuerta NOT clásica, realizando un "bit-flip"
+del estado cuántico.
+"""
