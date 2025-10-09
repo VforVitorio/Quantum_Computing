@@ -111,40 +111,34 @@ class Jugador:
                 valor: el valor específico de la apuesta
         """
         # PASO 1: Elegir tipo de apuesta con 2 qubits
-        # Creamos superposición en ambos qubits
+        # Creamos superposición en ambos qubits para aleatoriedad genuina
         programa_tipo = Program()
-
-        # Declarar memoria clásica para 2 bits
         ro = programa_tipo.declare('ro', 'BIT', 2)
 
         programa_tipo += H(0)  # Qubit 0 en superposición: |0⟩ + |1⟩
         programa_tipo += H(1)  # Qubit 1 en superposición: |0⟩ + |1⟩
 
-        # Medir qubits en memoria clásica
         programa_tipo += MEASURE(0, ro[0])
         programa_tipo += MEASURE(1, ro[1])
 
-        # Envolver en loop de 1 shot AL FINAL
+        # Envolver en loop de 1 shot AL FINAL (importante en PyQuil)
         programa_tipo.wrap_in_numshots_loop(1)
 
         resultado_tipo = self.qc.run(programa_tipo)
-
-        # Acceso a resultados
         bits = resultado_tipo.readout_data['ro']
         tipo_apuesta = bits[0][0] + 2 * bits[0][1]
 
         # PASO 2: Generar valor según el tipo elegido
 
         if tipo_apuesta == 0:  # NÚMERO ESPECÍFICO (0-36)
-            # Usamos 6 qubits para generar números de 0 a 63
+            # Usamos 6 qubits: 2^6 = 64 posibles, filtramos a 0-36
             numero = self._generar_numero_cuantico(6)
-            # Si el número es mayor que 36, repetimos hasta obtener uno válido
-            while numero > 36:
+            while numero > 36:  # Rechazar números fuera de rango
                 numero = self._generar_numero_cuantico(6)
             return {"tipo": "numero", "valor": numero}
 
         elif tipo_apuesta == 1:  # PAR o IMPAR
-            # Un solo qubit: |0⟩ = par, |1⟩ = impar
+            # Un solo qubit es suficiente: |0⟩ = par, |1⟩ = impar
             programa = Program()
             ro = programa.declare('ro', 'BIT', 1)
             programa += H(0)
@@ -156,7 +150,7 @@ class Jugador:
             return {"tipo": "paridad", "valor": valor}
 
         elif tipo_apuesta == 2:  # MANQUE (1-18) o PASSE (19-36)
-            # Un solo qubit: |0⟩ = manque, |1⟩ = passe
+            # Un solo qubit es suficiente: |0⟩ = manque, |1⟩ = passe
             programa = Program()
             ro = programa.declare('ro', 'BIT', 1)
             programa += H(0)
@@ -168,7 +162,7 @@ class Jugador:
             return {"tipo": "rango", "valor": valor}
 
         else:  # ROJO o NEGRO (tipo_apuesta == 3)
-            # Un solo qubit: |0⟩ = rojo, |1⟩ = negro
+            # Un solo qubit es suficiente: |0⟩ = rojo, |1⟩ = negro
             programa = Program()
             ro = programa.declare('ro', 'BIT', 1)
             programa += H(0)
@@ -195,28 +189,21 @@ class Jugador:
             int: Número aleatorio entre 0 y (2^n_qubits - 1)
         """
         programa = Program()
-
-        # Declarar memoria clásica para n_qubits bits
         ro = programa.declare('ro', 'BIT', n_qubits)
 
-        # Aplicar Hadamard a todos los qubits
+        # Aplicar Hadamard a todos los qubits para máxima superposición
         for i in range(n_qubits):
             programa += H(i)
 
-        # Medir todos los qubits en memoria clásica
         for i in range(n_qubits):
             programa += MEASURE(i, ro[i])
 
-        # Envolver en loop de 1 shot AL FINAL
         programa.wrap_in_numshots_loop(1)
-
         resultado = self.qc.run(programa)
-
-        # Acceso a resultados
         bits = resultado.readout_data['ro']
 
-        # Convertir bits a número decimal
-        # Ejemplo: [1,0,1] = 1×2^0 + 0×2^1 + 1×2^2 = 1 + 0 + 4 = 5
+        # Convertir bits a número decimal: cada bit aporta 2^posición
+        # Ejemplo: [1,0,1] = 1×2^0 + 0×2^1 + 1×2^2 = 5
         numero = sum([bits[0][i] * (2 ** i) for i in range(n_qubits)])
         return numero
 
@@ -274,7 +261,7 @@ class Croupier:
         """
         numero = self._generar_numero_cuantico(6)
 
-        # Repetir hasta obtener un número válido (0-36)
+        # Rechazar y regenerar si está fuera del rango válido de la ruleta
         while numero > 36:
             numero = self._generar_numero_cuantico(6)
 
@@ -293,22 +280,16 @@ class Croupier:
             int: Número aleatorio entre 0 y (2^n_qubits - 1)
         """
         programa = Program()
-
-        # Declarar memoria clásica para n_qubits bits
         ro = programa.declare('ro', 'BIT', n_qubits)
 
         for i in range(n_qubits):
             programa += H(i)
 
-        # Medir todos los qubits
         for i in range(n_qubits):
             programa += MEASURE(i, ro[i])
 
         programa.wrap_in_numshots_loop(1)
-
         resultado = self.qc.run(programa)
-
-        # Acceso a resultados
         bits = resultado.readout_data['ro']
         numero = sum([bits[0][i] * (2 ** i) for i in range(n_qubits)])
         return numero
@@ -370,33 +351,32 @@ class JuegoRuleta:
             bool: True si la apuesta ganó, False si perdió
         """
         if apuesta["tipo"] == "numero":
-            # Coincidencia exacta del número
             return apuesta["valor"] == numero_ganador
 
         elif apuesta["tipo"] == "paridad":
-            # El 0 no cuenta como par ni impar
+            # El 0 no cuenta como par ni impar (regla de la ruleta francesa)
             if numero_ganador == 0:
                 return False
 
             if apuesta["valor"] == "par":
                 return numero_ganador % 2 == 0
-            else:  # impar
+            else:
                 return numero_ganador % 2 == 1
 
         elif apuesta["tipo"] == "rango":
-            # El 0 no está en ningún rango
+            # El 0 no pertenece a ningún rango (regla especial)
             if numero_ganador == 0:
                 return False
 
             if apuesta["valor"] == "manque":
                 return 1 <= numero_ganador <= 18
-            else:  # passe
+            else:
                 return 19 <= numero_ganador <= 36
 
         elif apuesta["tipo"] == "color":
             color_ganador = COLORES_RULETA[numero_ganador]
 
-            # El 0 (verde) no es ni rojo ni negro
+            # El 0 es verde, no cuenta como rojo ni negro
             if color_ganador == "verde":
                 return False
 
@@ -423,7 +403,7 @@ class JuegoRuleta:
         print(f"RONDA {numero_ronda}")
         print(f"{'='*60}")
 
-        # PASO 1: Cada jugador genera su apuesta
+        # Cada jugador genera su apuesta cuánticamente
         apuestas = {}
         for jugador in self.jugadores:
             apuesta = jugador.generar_apuesta()
@@ -431,12 +411,12 @@ class JuegoRuleta:
             print(
                 f"{jugador.nombre} apuesta: {apuesta['tipo']} = {apuesta['valor']}")
 
-        # PASO 2: El croupier gira la ruleta
+        # El croupier gira la ruleta cuánticamente
         numero_ganador = self.croupier.girar_ruleta()
         color_ganador = COLORES_RULETA[numero_ganador]
         print(f"\n🎰 Resultado: {numero_ganador} ({color_ganador})")
 
-        # PASO 3: Verificar apuestas y actualizar monedas
+        # Verificar apuestas y actualizar monedas
         print(f"\nResultados:")
         for jugador in self.jugadores:
             apuesta = apuestas[jugador.nombre]
@@ -469,11 +449,9 @@ class JuegoRuleta:
         print(f"  {self.jugador2.nombre}: {self.jugador2.monedas}")
         print(f"  Croupier: {self.croupier.monedas}")
 
-        # Ejecutar todas las rondas
         for i in range(1, num_rondas + 1):
             self.jugar_ronda(i)
 
-        # Mostrar resultados finales
         print(f"\n{'='*60}")
         print("RESULTADOS FINALES")
         print(f"{'='*60}")
@@ -495,14 +473,10 @@ if __name__ == "__main__":
     print("INICIANDO SIMULACIÓN DE RULETA FRANCESA CUÁNTICA")
     print("="*60)
 
-    # Crear jugadores con 10 monedas cada uno
     jugador1 = Jugador("Alice", 10)
     jugador2 = Jugador("Bob", 10)
-
-    # Crear croupier con 20 monedas
     croupier = Croupier(20)
 
-    # Crear e iniciar el juego
     juego = JuegoRuleta(jugador1, jugador2, croupier)
     juego.jugar(num_rondas=10)
 

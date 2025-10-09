@@ -129,39 +129,39 @@ class CroupierTramposo(Croupier):
         Returns:
             int: Número final de la ruleta (0-36)
         """
-        # PASO 1: Generar número original con estado de bits
+        # Generar número original guardando estado de bits para manipulación
         self.numero_original = self._generar_numero_cuantico_con_estado(6)
         while self.numero_original['numero'] > 36:
             self.numero_original = self._generar_numero_cuantico_con_estado(6)
 
-        # PASO 2: Elegir un jugador aleatorio para espiar
+        # Elegir víctima: un jugador aleatorio para espiar
         jugador_espiado = random.choice(jugadores)
         self.jugador_espiado = jugador_espiado  # GUARDAR para verificar después
         apuesta_espiada = apuestas[jugador_espiado.nombre]
 
-        # PASO 3: Verificar si el jugador ganaría con el número actual
+        # Verificar si el jugador ganaría (motivo para hacer trampa)
         ganaria = self._verificar_apuesta_rapida(apuesta_espiada,
                                                  self.numero_original['numero'])
 
-        # PASO 4: Si el jugador ganaría, intentar hacer trampa
+        # Intentar trampa solo si el jugador ganaría
         if ganaria:
             print(f"  [TRAMPA] Croupier espía a {jugador_espiado.nombre}")
             print(f"  [TRAMPA] Apuesta espiada: {apuesta_espiada}")
             print(
                 f"  [TRAMPA] Número original: {self.numero_original['numero']}")
 
-            # Cambiar aleatoriamente uno de los 6 qubits (0-5)
+            # Modificar aleatoriamente uno de los 6 qubits
             qubit_a_cambiar = random.randint(0, 5)
 
-            # Invertir el bit: 0→1 o 1→0
+            # Invertir el bit seleccionado: 0→1 o 1→0
             self.numero_original['bits'][qubit_a_cambiar] = \
                 1 - self.numero_original['bits'][qubit_a_cambiar]
 
-            # Recalcular el número con el bit modificado
+            # Recalcular número con el qubit modificado
             numero_nuevo = sum([self.numero_original['bits'][i] * (2 ** i)
                                for i in range(6)])
 
-            # VALIDACIÓN: Solo usar el nuevo número si está en rango válido
+            # Validar que el nuevo número esté en rango válido de la ruleta
             if numero_nuevo <= 36:
                 # Trampa exitosa
                 print(f"  [TRAMPA] Cambiando qubit {qubit_a_cambiar}: " +
@@ -170,14 +170,14 @@ class CroupierTramposo(Croupier):
                 self.hizo_trampa = True
                 return numero_nuevo
             else:
-                # Trampa fallida: el nuevo número está fuera de rango
+                # Trampa fallida: número fuera de rango, mantener original
                 print(f"  [TRAMPA] Cambio inválido: qubit {qubit_a_cambiar} " +
                       f"genera {numero_nuevo} (>36)")
                 print(f"  [TRAMPA] Manteniendo número original")
                 self.hizo_trampa = False
                 return self.numero_original['numero']
         else:
-            # El jugador no ganaría, no hay necesidad de hacer trampa
+            # El jugador perdería de todas formas, no hay necesidad de trampa
             self.hizo_trampa = False
             self.jugador_espiado = None  # No hubo espionaje efectivo
             return self.numero_original['numero']
@@ -211,29 +211,21 @@ class CroupierTramposo(Croupier):
             numero = 1*2^0 + 0*2^1 + 0*2^2 + 1*2^3 + 1*2^4 + 0*2^5 = 25
         """
         programa = Program()
-
-        # Declarar memoria clásica
         ro = programa.declare('ro', 'BIT', n_qubits)
 
-        # Crear superposición en todos los qubits
+        # Crear superposición cuántica en todos los qubits
         for i in range(n_qubits):
             programa += H(i)
 
-        # Medir todos los qubits
         for i in range(n_qubits):
             programa += MEASURE(i, ro[i])
 
         programa.wrap_in_numshots_loop(1)
-
         resultado = self.qc.run(programa)
-
-        # Acceso a resultados
         resultado_bits = resultado.readout_data['ro']
 
-        # Guardar el estado de cada bit
+        # Guardar el estado individual de cada bit (necesario para manipulación)
         bits = [resultado_bits[0][i] for i in range(n_qubits)]
-
-        # Calcular el número decimal
         numero = sum([bits[i] * (2 ** i) for i in range(n_qubits)])
 
         return {"numero": numero, "bits": bits}
@@ -256,6 +248,7 @@ class CroupierTramposo(Croupier):
             return apuesta["valor"] == numero
 
         elif apuesta["tipo"] == "paridad":
+            # El 0 no es par ni impar (regla especial de ruleta)
             if numero == 0:
                 return False
             if apuesta["valor"] == "par":
@@ -264,6 +257,7 @@ class CroupierTramposo(Croupier):
                 return numero % 2 == 1
 
         elif apuesta["tipo"] == "rango":
+            # El 0 no pertenece a ningún rango
             if numero == 0:
                 return False
             if apuesta["valor"] == "manque":
@@ -346,7 +340,6 @@ class JuegoRuletaTramposa(JuegoRuleta):
         print(f"RONDA {numero_ronda}")
         print(f"{'='*60}")
 
-        # Cada jugador genera su apuesta
         apuestas = {}
         for jugador in self.jugadores:
             apuesta = jugador.generar_apuesta()
@@ -354,17 +347,15 @@ class JuegoRuletaTramposa(JuegoRuleta):
             print(
                 f"{jugador.nombre} apuesta: {apuesta['tipo']} = {apuesta['valor']}")
 
-        # El croupier gira la ruleta CON POSIBILIDAD DE TRAMPA
+        # Aquí ocurre la magia: el croupier puede hacer trampa
         numero_ganador = self.croupier.girar_ruleta_con_trampa(self.jugadores,
                                                                apuestas)
         color_ganador = COLORES_RULETA[numero_ganador]
         print(f"\n Resultado FINAL: {numero_ganador} ({color_ganador})")
 
-        # Registrar si se intentó hacer trampa
         if self.croupier.hizo_trampa:
             self.total_trampas += 1
 
-        # Verificar apuestas y actualizar monedas
         print(f"\nResultados:")
         for jugador in self.jugadores:
             apuesta = apuestas[jugador.nombre]
@@ -403,11 +394,9 @@ class JuegoRuletaTramposa(JuegoRuleta):
         print(f"  {self.jugador2.nombre}: {self.jugador2.monedas}")
         print(f"  Croupier: {self.croupier.monedas}")
 
-        # Ejecutar todas las rondas
         for i in range(1, num_rondas + 1):
             self.jugar_ronda(i)
 
-        # Mostrar resultados finales
         print(f"\n{'='*60}")
         print("RESULTADOS FINALES")
         print(f"{'='*60}")
@@ -471,14 +460,10 @@ if __name__ == "__main__":
     print("INICIANDO SIMULACIÓN DE RULETA FRANCESA CUÁNTICA CON TRAMPAS")
     print("="*60)
 
-    # Crear jugadores con 10 monedas cada uno
     jugador1 = Jugador("Alice", 10)
     jugador2 = Jugador("Bob", 10)
-
-    # Crear croupier TRAMPOSO con 20 monedas
     croupier_tramposo = CroupierTramposo(20)
 
-    # Crear e iniciar el juego CON TRAMPAS
     juego = JuegoRuletaTramposa(jugador1, jugador2, croupier_tramposo)
     juego.jugar(num_rondas=10)
 
