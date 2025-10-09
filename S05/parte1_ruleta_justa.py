@@ -51,19 +51,19 @@ from pyquil.gates import H, MEASURE
 # - El 0 es verde (ni rojo ni negro)
 # - Los números pares son negros
 # - Los números impares son rojos
-# Por tanto, se usa un diccionario numeros_colores donde se asigna a su primer
+# Por tanto, se usa un diccionario COLORES_RULETA donde se asigna a su primer
 # valor (el 0) el color verde. Los colores negro o rojo se determinan según el
 # resto obtenido de dividir i entre 2 en los números del 1 al 36: si el resto
 # es 0 (par) se asigna negro, si el resto es 1 (impar) se asigna rojo.
 
-numeros_colores = {}
-numeros_colores[0] = "verde"
+COLORES_RULETA = {}
+COLORES_RULETA[0] = "verde"
 
 for i in range(1, 37):
     if i % 2 == 0:
-        numeros_colores[i] = "negro"
+        COLORES_RULETA[i] = "negro"
     else:
-        numeros_colores[i] = "rojo"
+        COLORES_RULETA[i] = "rojo"
 
 
 # ============================================================================
@@ -114,22 +114,22 @@ class Jugador:
         # Creamos superposición en ambos qubits
         programa_tipo = Program()
 
-        # Declarar memoria clásica para 2 bits (PyQuil 3.x)
+        # Declarar memoria clásica para 2 bits
         ro = programa_tipo.declare('ro', 'BIT', 2)
 
         programa_tipo += H(0)  # Qubit 0 en superposición: |0⟩ + |1⟩
         programa_tipo += H(1)  # Qubit 1 en superposición: |0⟩ + |1⟩
 
-        # Medir qubits en memoria clásica (PyQuil 3.x)
+        # Medir qubits en memoria clásica
         programa_tipo += MEASURE(0, ro[0])
         programa_tipo += MEASURE(1, ro[1])
 
-        # Envolver en loop de 1 shot AL FINAL (PyQuil 3.x)
+        # Envolver en loop de 1 shot AL FINAL
         programa_tipo.wrap_in_numshots_loop(1)
 
         resultado_tipo = self.qc.run(programa_tipo)
 
-        # Acceso a resultados en PyQuil 3.x
+        # Acceso a resultados
         bits = resultado_tipo.readout_data['ro']
         tipo_apuesta = bits[0][0] + 2 * bits[0][1]
 
@@ -196,23 +196,23 @@ class Jugador:
         """
         programa = Program()
 
-        # Declarar memoria clásica para n_qubits bits (PyQuil 3.x)
+        # Declarar memoria clásica para n_qubits bits
         ro = programa.declare('ro', 'BIT', n_qubits)
 
         # Aplicar Hadamard a todos los qubits
         for i in range(n_qubits):
             programa += H(i)
 
-        # Medir todos los qubits en memoria clásica (PyQuil 3.x)
+        # Medir todos los qubits en memoria clásica
         for i in range(n_qubits):
             programa += MEASURE(i, ro[i])
 
-        # Envolver en loop de 1 shot AL FINAL (PyQuil 3.x)
+        # Envolver en loop de 1 shot AL FINAL
         programa.wrap_in_numshots_loop(1)
 
         resultado = self.qc.run(programa)
 
-        # Acceso a resultados en PyQuil 3.x
+        # Acceso a resultados
         bits = resultado.readout_data['ro']
 
         # Convertir bits a número decimal
@@ -294,13 +294,13 @@ class Croupier:
         """
         programa = Program()
 
-        # Declarar memoria clásica para n_qubits bits (PyQuil 3.x)
+        # Declarar memoria clásica para n_qubits bits
         ro = programa.declare('ro', 'BIT', n_qubits)
 
         for i in range(n_qubits):
             programa += H(i)
 
-        # Medir todos los qubits (PyQuil 3.x)
+        # Medir todos los qubits
         for i in range(n_qubits):
             programa += MEASURE(i, ro[i])
 
@@ -308,7 +308,7 @@ class Croupier:
 
         resultado = self.qc.run(programa)
 
-        # Acceso a resultados en PyQuil 3.x
+        # Acceso a resultados
         bits = resultado.readout_data['ro']
         numero = sum([bits[0][i] * (2 ** i) for i in range(n_qubits)])
         return numero
@@ -394,7 +394,7 @@ class JuegoRuleta:
                 return 19 <= numero_ganador <= 36
 
         elif apuesta["tipo"] == "color":
-            color_ganador = numeros_colores[numero_ganador]
+            color_ganador = COLORES_RULETA[numero_ganador]
 
             # El 0 (verde) no es ni rojo ni negro
             if color_ganador == "verde":
@@ -433,7 +433,7 @@ class JuegoRuleta:
 
         # PASO 2: El croupier gira la ruleta
         numero_ganador = self.croupier.girar_ruleta()
-        color_ganador = numeros_colores[numero_ganador]
+        color_ganador = COLORES_RULETA[numero_ganador]
         print(f"\n🎰 Resultado: {numero_ganador} ({color_ganador})")
 
         # PASO 3: Verificar apuestas y actualizar monedas

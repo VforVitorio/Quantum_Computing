@@ -1,6 +1,6 @@
 """
 ================================================================================
-RULETA FRANCESA CUÁNTICA - PARTE 2: JUEGO CON TRAMPAS (OPTIMIZADO)
+RULETA FRANCESA CUÁNTICA - PARTE 2: JUEGO CON TRAMPAS 
 ================================================================================
 
 Asignatura: Computación Cuántica y Natural
@@ -27,7 +27,7 @@ demuestra cómo la aleatoriedad cuántica persiste incluso al intentar manipular
 
 ESTRUCTURA:
 -----------
-- Importa: numeros_colores, Jugador, Croupier, JuegoRuleta de parte1
+- Importa: COLORES_RULETA, Jugador, Croupier, JuegoRuleta de parte1
 - Define: CroupierTramposo (hereda de Croupier)
 - Define: JuegoRuletaTramposa (hereda de JuegoRuleta)
 
@@ -60,7 +60,7 @@ from pyquil.gates import H, MEASURE
 import random
 
 # Importar clases base y configuración de la Parte 1
-from parte1_ruleta_justa import numeros_colores, Jugador, Croupier, JuegoRuleta
+from parte1_ruleta_justa import COLORES_RULETA, Jugador, Croupier, JuegoRuleta
 
 
 # ============================================================================
@@ -104,7 +104,7 @@ class CroupierTramposo(Croupier):
         self.numero_original = None
         self.numero_trampa = None
         self.hizo_trampa = False
-        self.jugador_espiado = None  # NUEVO: guardar qué jugador fue espiado
+        self.jugador_espiado = None  # guardar cuál de los jugadores fue espiado
 
     def girar_ruleta_con_trampa(self, jugadores, apuestas):
         """
@@ -207,19 +207,19 @@ class CroupierTramposo(Croupier):
         Ejemplo:
             Para el número 25 con 6 qubits:
             25 en binario = 011001
-            bits = [1, 0, 0, 1, 1, 0]  (little-endian)
-            numero = 1×2^0 + 0×2^1 + 0×2^2 + 1×2^3 + 1×2^4 + 0×2^5 = 25
+            bits = [1, 0, 0, 1, 1, 0]  
+            numero = 1*2^0 + 0*2^1 + 0*2^2 + 1*2^3 + 1*2^4 + 0*2^5 = 25
         """
         programa = Program()
 
-        # Declarar memoria clásica (PyQuil 3.x)
+        # Declarar memoria clásica
         ro = programa.declare('ro', 'BIT', n_qubits)
 
         # Crear superposición en todos los qubits
         for i in range(n_qubits):
             programa += H(i)
 
-        # Medir todos los qubits (PyQuil 3.x)
+        # Medir todos los qubits
         for i in range(n_qubits):
             programa += MEASURE(i, ro[i])
 
@@ -227,7 +227,7 @@ class CroupierTramposo(Croupier):
 
         resultado = self.qc.run(programa)
 
-        # Acceso a resultados en PyQuil 3.x
+        # Acceso a resultados
         resultado_bits = resultado.readout_data['ro']
 
         # Guardar el estado de cada bit
@@ -272,7 +272,7 @@ class CroupierTramposo(Croupier):
                 return 19 <= numero <= 36
 
         elif apuesta["tipo"] == "color":
-            color_ganador = numeros_colores[numero]
+            color_ganador = COLORES_RULETA[numero]
             if color_ganador == "verde":
                 return False
             return apuesta["valor"] == color_ganador
@@ -308,13 +308,13 @@ class JuegoRuletaTramposa(JuegoRuleta):
     NOTA IMPORTANTE SOBRE "TRAMPA EXITOSA":
     ----------------------------------------
     Una trampa se considera exitosa SOLO si:
-    1. El croupier hizo trampa (cambió un qubit)
-    2. El jugador ESPIADO específicamente perdió su apuesta
+        1. El croupier hizo trampa (cambió un qubit)
+        2. El jugador ESPIADO específicamente perdió su apuesta
 
     La trampa puede fallar por tres razones:
-    1. El nuevo número es >36 (inválido, se mantiene el original)
-    2. El nuevo número sigue beneficiando al jugador espiado
-    3. El cambio de un qubit aleatorio tiene consecuencias impredecibles
+        1. El nuevo número es >36 (inválido, se mantiene el original)
+        2. El nuevo número sigue beneficiando al jugador espiado
+        3. El cambio de un qubit aleatorio tiene consecuencias impredecibles
 
     Esto refleja la incertidumbre cuántica inherente al sistema.
     """
@@ -357,8 +357,8 @@ class JuegoRuletaTramposa(JuegoRuleta):
         # El croupier gira la ruleta CON POSIBILIDAD DE TRAMPA
         numero_ganador = self.croupier.girar_ruleta_con_trampa(self.jugadores,
                                                                apuestas)
-        color_ganador = numeros_colores[numero_ganador]
-        print(f"\n🎰 Resultado FINAL: {numero_ganador} ({color_ganador})")
+        color_ganador = COLORES_RULETA[numero_ganador]
+        print(f"\n Resultado FINAL: {numero_ganador} ({color_ganador})")
 
         # Registrar si se intentó hacer trampa
         if self.croupier.hizo_trampa:
@@ -380,7 +380,7 @@ class JuegoRuletaTramposa(JuegoRuleta):
                 print(
                     f"  ✗ {jugador.nombre} PIERDE - Monedas: {jugador.monedas}")
 
-                # CORRECCIÓN: Solo cuenta como trampa exitosa si el jugador ESPIADO perdió
+                # Solo cuenta como trampa exitosa si el jugador ESPIADO perdió
                 if self.croupier.hizo_trampa and jugador == self.croupier.jugador_espiado:
                     self.trampas_exitosas += 1
 
@@ -396,7 +396,7 @@ class JuegoRuletaTramposa(JuegoRuleta):
         - Al final muestra estadísticas de trampas
         """
         print("="*60)
-        print("RULETA FRANCESA CUÁNTICA - CON TRAMPAS 🎭")
+        print("RULETA FRANCESA CUÁNTICA - CON TRAMPAS")
         print("="*60)
         print(f"\nMonedas iniciales:")
         print(f"  {self.jugador1.nombre}: {self.jugador1.monedas}")
@@ -416,7 +416,7 @@ class JuegoRuletaTramposa(JuegoRuleta):
         print(f"Croupier: {self.croupier.monedas} monedas")
 
         # ESTADÍSTICAS DE TRAMPAS
-        print(f"\n📊 ESTADÍSTICAS DE TRAMPAS:")
+        print(f"\n ESTADÍSTICAS DE TRAMPAS:")
         print(f"  Total de intentos de trampa: {self.total_trampas}")
         print(
             f"  Trampas exitosas (jugador espiado perdió): {self.trampas_exitosas}")
@@ -427,7 +427,7 @@ class JuegoRuletaTramposa(JuegoRuleta):
                 f"  Trampas fallidas: {self.total_trampas - self.trampas_exitosas}")
 
         # ANÁLISIS
-        print(f"\n💡 ANÁLISIS:")
+        print(f"\n ANÁLISIS:")
         if self.total_trampas == 0:
             print("  No hubo oportunidades para hacer trampa.")
         else:
@@ -442,7 +442,7 @@ class JuegoRuletaTramposa(JuegoRuleta):
                     f"  - Cambiar un solo qubit aleatoriamente no garantiza perjudicar al jugador")
             if self.trampas_exitosas == 0 and self.total_trampas > 0:
                 print(
-                    f"  ¡Ninguna trampa fue exitosa! La incertidumbre cuántica protegió a los jugadores.")
+                    f"  Ninguna trampa fue exitosa. La incertidumbre cuántica ha jugado a favor de los jugadores.")
 
 
 # ============================================================================
@@ -453,6 +453,19 @@ if __name__ == "__main__":
     Punto de entrada del programa.
 
     Crea los participantes con el croupier tramposo y ejecuta el juego.
+
+    -----
+    OBSERVACIONES:
+    --- 
+        1. Las trampas no siempre funcionan debido a la incertidumbre cuántica.
+
+        2. Cambiar un solo qubit puede generar números inválidos o seguir
+        beneficiando al jugador espiado, demostrando la naturaleza
+        probabilística de la mecánica cuántica.
+
+        3. Una trampa se considera 'exitosa' SOLO cuando el jugador ESPIADO
+        pierde su apuesta. Esto demuestra que incluso haciendo trampas,
+        la incertidumbre cuántica puede proteger a los jugadores.
     """
     print("\n" + "="*60)
     print("INICIANDO SIMULACIÓN DE RULETA FRANCESA CUÁNTICA CON TRAMPAS")
@@ -472,11 +485,3 @@ if __name__ == "__main__":
     print("\n" + "="*60)
     print("SIMULACIÓN COMPLETADA")
     print("="*60)
-    print("\nOBSERVACIÓN:")
-    print("Las trampas no siempre funcionan debido a la incertidumbre cuántica.")
-    print("Cambiar un solo qubit puede generar números inválidos o seguir")
-    print("beneficiando al jugador espiado, demostrando la naturaleza")
-    print("probabilística de la mecánica cuántica.")
-    print("\nUna trampa se considera 'exitosa' SOLO cuando el jugador ESPIADO")
-    print("pierde su apuesta. Esto demuestra que incluso haciendo trampas,")
-    print("la incertidumbre cuántica puede proteger a los jugadores.")
