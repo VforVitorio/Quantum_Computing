@@ -347,7 +347,6 @@ class JuegoRuletaTramposa(JuegoRuleta):
             print(
                 f"{jugador.nombre} apuesta: {apuesta['tipo']} = {apuesta['valor']}")
 
-        # Aquí ocurre la magia: el croupier puede hacer trampa
         numero_ganador = self.croupier.girar_ruleta_con_trampa(self.jugadores,
                                                                apuestas)
         color_ganador = COLORES_RULETA[numero_ganador]
