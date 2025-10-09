@@ -4,7 +4,7 @@ RULETA FRANCESA CUÁNTICA - PARTE 2: JUEGO CON TRAMPAS
 ================================================================================
 
 Asignatura: Computación Cuántica y Natural
-Actividad: S05 - La Ruleta Francesa
+Actividad: S05 Actividad Práctica - Ruleta Francesa
 Alumno: Víctor Vega Sobral
 
 DESCRIPCIÓN:
@@ -364,12 +364,11 @@ class JuegoRuletaTramposa(JuegoRuleta):
             if gano:
                 jugador.ganar(1)
                 self.croupier.perder(1)
-                print(f"  ✓ {jugador.nombre} GANA - Monedas: {jugador.monedas}")
+                print(f"  {jugador.nombre} GANA - Monedas: {jugador.monedas}")
             else:
                 jugador.perder(1)
                 self.croupier.ganar(1)
-                print(
-                    f"  ✗ {jugador.nombre} PIERDE - Monedas: {jugador.monedas}")
+                print(f"  {jugador.nombre} PIERDE - Monedas: {jugador.monedas}")
 
                 # Solo cuenta como trampa exitosa si el jugador ESPIADO perdió
                 if self.croupier.hizo_trampa and jugador == self.croupier.jugador_espiado:

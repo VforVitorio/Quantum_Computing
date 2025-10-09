@@ -4,7 +4,7 @@ RULETA FRANCESA CUÁNTICA - PARTE 1: JUEGO JUSTO
 ================================================================================
 
 Asignatura: Computación Cuántica y Natural
-Actividad: S05 - La Ruleta Francesa
+Actividad: Actividad Práctica S05 - Ruleta Francesa
 Alumno: Víctor Vega Sobral
 
 DESCRIPCIÓN:
@@ -414,7 +414,7 @@ class JuegoRuleta:
         # El croupier gira la ruleta cuánticamente
         numero_ganador = self.croupier.girar_ruleta()
         color_ganador = COLORES_RULETA[numero_ganador]
-        print(f"\n🎰 Resultado: {numero_ganador} ({color_ganador})")
+        print(f"\n Resultado: {numero_ganador} ({color_ganador})")
 
         # Verificar apuestas y actualizar monedas
         print(f"\nResultados:")
@@ -425,12 +425,11 @@ class JuegoRuleta:
             if gano:
                 jugador.ganar(1)
                 self.croupier.perder(1)
-                print(f"  ✓ {jugador.nombre} GANA - Monedas: {jugador.monedas}")
+                print(f"  {jugador.nombre} GANA - Monedas: {jugador.monedas}")
             else:
                 jugador.perder(1)
                 self.croupier.ganar(1)
-                print(
-                    f"  ✗ {jugador.nombre} PIERDE - Monedas: {jugador.monedas}")
+                print(f"  {jugador.nombre} PIERDE - Monedas: {jugador.monedas}")
 
         print(f"\nCroupier - Monedas: {self.croupier.monedas}")
 
