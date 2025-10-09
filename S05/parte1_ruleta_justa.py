@@ -1,52 +1,51 @@
 """
-================================================================================
+==================================================
 RULETA FRANCESA CUÁNTICA - PARTE 1: JUEGO JUSTO
-================================================================================
+==================================================
 
 Asignatura: Computación Cuántica y Natural
 Actividad: Actividad Práctica S05 - Ruleta Francesa
 Alumno: Víctor Vega Sobral
 
 DESCRIPCIÓN:
-------------
+
 Implementación de un juego de ruleta francesa usando circuitos cuánticos
 para generar aleatoriedad verdadera. En esta versión, todos los participantes
 son independientes y el juego es completamente justo.
 
 REGLAS:
--------
+
 - La ruleta tiene 37 números (0-36)
 - 2 jugadores empiezan con 10 monedas cada uno
 - El croupier empieza con 20 monedas
 - Se gana/pierde 1 moneda por ronda
 
 TIPOS DE APUESTAS:
-------------------
+
 1. Número específico (0-36)
 2. Par o Impar
 3. Manque (1-18) o Passe (19-36)
 4. Rojo o Negro
 
 ASPECTOS CUÁNTICOS:
--------------------
+
 - Se usan 6 qubits para representar números 0-36 (2^6 = 64 posibles)
 - Cada circuito cuántico es independiente
 - Se usa la puerta Hadamard (H) para crear superposición
 - La medición colapsa el estado a un valor definido
 
 REQUISITOS:
------------
+
 pip install pyquil==3.2.1
-================================================================================
+===================================
 """
 
 from pyquil import Program, get_qc
 from pyquil.gates import H, MEASURE
 
-
-# ============================================================================
+# ===============================================
 # CONFIGURACIÓN DE COLORES
-# ============================================================================
+# ===============================================
 # En la ruleta francesa:
 # - El 0 es verde (ni rojo ni negro)
 # - Los números pares son negros
@@ -66,9 +65,9 @@ for i in range(1, 37):
         COLORES_RULETA[i] = "rojo"
 
 
-# ============================================================================
+# =============================================
 # CLASE JUGADOR
-# ============================================================================
+# =============================================
 class Jugador:
     """
     Representa un jugador de la ruleta.
@@ -216,9 +215,9 @@ class Jugador:
         self.monedas -= cantidad
 
 
-# ============================================================================
+# ===================================
 # CLASE CROUPIER
-# ============================================================================
+# ===================================
 class Croupier:
     """
     Representa al croupier (encargado de la ruleta).
@@ -303,9 +302,9 @@ class Croupier:
         self.monedas -= cantidad
 
 
-# ============================================================================
+# ===================
 # CLASE JUEGO RULETA
-# ============================================================================
+# ===================
 class JuegoRuleta:
     """
     Maneja la lógica completa del juego de ruleta.
@@ -459,9 +458,9 @@ class JuegoRuleta:
         print(f"Croupier: {self.croupier.monedas} monedas")
 
 
-# ============================================================================
+# ==================
 # PROGRAMA PRINCIPAL
-# ============================================================================
+# ==================
 if __name__ == "__main__":
     """
     Punto de entrada del programa.

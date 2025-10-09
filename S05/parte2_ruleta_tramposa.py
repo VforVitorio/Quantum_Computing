@@ -1,7 +1,7 @@
 """
-================================================================================
+======================================================
 RULETA FRANCESA CUÁNTICA - PARTE 2: JUEGO CON TRAMPAS 
-================================================================================
+======================================================
 
 Asignatura: Computación Cuántica y Natural
 Actividad: S05 Actividad Práctica - Ruleta Francesa
@@ -26,13 +26,13 @@ La trampa no siempre funciona debido a la incertidumbre cuántica, lo que
 demuestra cómo la aleatoriedad cuántica persiste incluso al intentar manipularla.
 
 ESTRUCTURA:
------------
+
 - Importa: COLORES_RULETA, Jugador, Croupier, JuegoRuleta de parte1
 - Define: CroupierTramposo (hereda de Croupier)
 - Define: JuegoRuletaTramposa (hereda de JuegoRuleta)
 
 MECÁNICA DE LA TRAMPA:
------------------------
+
 1. El croupier genera un número normalmente (con 6 qubits)
 2. Elige aleatoriamente a un jugador para espiar
 3. Verifica si ese jugador ganaría con el número actual
@@ -43,18 +43,18 @@ MECÁNICA DE LA TRAMPA:
    - Si es inválido (>36), mantiene el original (trampa fallida)
 
 REQUISITOS:
------------
+
 pip install pyquil==3.2.1
 
 IMPORTANTE:
 -----------
 Este archivo requiere que parte1_ruleta_justa.py esté en el mismo directorio.
-================================================================================
+====================================
 """
 
-# ============================================================================
+# ================================
 # IMPORTS
-# ============================================================================
+# ================================
 from pyquil import Program, get_qc
 from pyquil.gates import H, MEASURE
 import random
@@ -63,9 +63,9 @@ import random
 from parte1_ruleta_justa import COLORES_RULETA, Jugador, Croupier, JuegoRuleta
 
 
-# ============================================================================
+# ============================================
 # CLASE CROUPIER TRAMPOSO (hereda de Croupier)
-# ============================================================================
+# ============================================
 class CroupierTramposo(Croupier):
     """
     Croupier que hace trampas espiando a los jugadores.
@@ -274,33 +274,33 @@ class CroupierTramposo(Croupier):
         return False
 
 
-# ============================================================================
+# ===================================================
 # CLASE JUEGO RULETA TRAMPOSA (hereda de JuegoRuleta)
-# ============================================================================
+# ===================================================
 class JuegoRuletaTramposa(JuegoRuleta):
     """
     Juego de ruleta donde el croupier puede hacer trampas.
 
     HERENCIA:
-    ---------
+
     Hereda de JuegoRuleta y modifica:
     - jugar_ronda(): Usa girar_ruleta_con_trampa() en lugar de girar_ruleta()
     - jugar(): Añade estadísticas de trampas al final
 
     ATRIBUTOS ADICIONALES:
-    ----------------------
+
     - total_trampas: Contador de intentos de trampa
     - trampas_exitosas: Contador de trampas donde el jugador ESPIADO perdió
 
     ESTADÍSTICAS:
-    -------------
+
     Al final del juego se muestra:
     - Total de veces que el croupier intentó hacer trampa
     - Cuántas trampas fueron exitosas (el jugador ESPIADO específicamente perdió)
     - Tasa de éxito de las trampas
 
     NOTA IMPORTANTE SOBRE "TRAMPA EXITOSA":
-    ----------------------------------------
+
     Una trampa se considera exitosa SOLO si:
         1. El croupier hizo trampa (cambió un qubit)
         2. El jugador ESPIADO específicamente perdió su apuesta
@@ -331,7 +331,7 @@ class JuegoRuletaTramposa(JuegoRuleta):
         Ejecuta una ronda donde el croupier puede hacer trampa.
 
         DIFERENCIAS CON LA CLASE PADRE:
-        --------------------------------
+
         1. Usa girar_ruleta_con_trampa() en lugar de girar_ruleta()
         2. Registra si se hizo trampa
         3. Cuenta las trampas exitosas (cuando el jugador espiado pierde)
@@ -381,7 +381,7 @@ class JuegoRuletaTramposa(JuegoRuleta):
         Ejecuta el juego completo con trampas y muestra estadísticas.
 
         DIFERENCIAS CON LA CLASE PADRE:
-        --------------------------------
+
         - Título indica que hay trampas
         - Al final muestra estadísticas de trampas
         """
@@ -433,18 +433,18 @@ class JuegoRuletaTramposa(JuegoRuleta):
                     f"  Ninguna trampa fue exitosa. La incertidumbre cuántica ha jugado a favor de los jugadores.")
 
 
-# ============================================================================
+# ====================
 # PROGRAMA PRINCIPAL
-# ============================================================================
+# ====================
 if __name__ == "__main__":
     """
     Punto de entrada del programa.
 
     Crea los participantes con el croupier tramposo y ejecuta el juego.
 
-    -----
+
     OBSERVACIONES:
-    --- 
+
         1. Las trampas no siempre funcionan debido a la incertidumbre cuántica.
 
         2. Cambiar un solo qubit puede generar números inválidos o seguir
