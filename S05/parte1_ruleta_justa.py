@@ -5,7 +5,7 @@ RULETA FRANCESA CUÁNTICA - PARTE 1: JUEGO JUSTO
 
 Asignatura: Computación Cuántica y Natural
 Actividad: S05 - La Ruleta Francesa
-Profesor: Yago González Rozas
+Alumno: Víctor Vega Sobral
 
 DESCRIPCIÓN:
 ------------
@@ -51,6 +51,10 @@ from pyquil.gates import H, MEASURE
 # - El 0 es verde (ni rojo ni negro)
 # - Los números pares son negros
 # - Los números impares son rojos
+# Por tanto, se usa un diccionario numeros_colores donde se asigna a su primer
+# valor (el 0) el color verde. Los colores negro o rojo se determinan según el
+# resto obtenido de dividir i entre 2 en los números del 1 al 36: si el resto
+# es 0 (par) se asigna negro, si el resto es 1 (impar) se asigna rojo.
 
 numeros_colores = {}
 numeros_colores[0] = "verde"
@@ -87,6 +91,7 @@ class Jugador:
         Args:
             nombre: Nombre del jugador
             monedas_iniciales: Cantidad inicial de monedas (default: 10)
+            qc: simulador cuántico independiente del jugador
         """
         self.nombre = nombre
         self.monedas = monedas_iniciales

@@ -5,12 +5,25 @@ RULETA FRANCESA CUÁNTICA - PARTE 2: JUEGO CON TRAMPAS (OPTIMIZADO)
 
 Asignatura: Computación Cuántica y Natural
 Actividad: S05 - La Ruleta Francesa
-Profesor: Yago González Rozas
+Alumno: Víctor Vega Sobral
 
 DESCRIPCIÓN:
 ------------
-Versión optimizada que importa las clases base de la Parte 1 y solo define
-las clases específicas para el juego con trampas.
+Implementación de la Ruleta Francesa Cuántica donde el croupier hace trampas.
+Este archivo extiende la funcionalidad de la Parte 1, importando las clases
+base (Jugador, Croupier, JuegoRuleta) y el diccionario de colores desde el
+archivo parte1_ruleta_justa.py. Define dos nuevas clases:
+
+- CroupierTramposo: Hereda de Croupier y añade la capacidad de hacer trampas
+  espiando a un jugador aleatorio y modificando un qubit del resultado si 
+  ese jugador ganaría.
+  
+- JuegoRuletaTramposa: Hereda de JuegoRuleta y gestiona el juego con el
+  croupier tramposo, registrando estadísticas sobre los intentos de trampa
+  y su tasa de éxito.
+
+La trampa no siempre funciona debido a la incertidumbre cuántica, lo que
+demuestra cómo la aleatoriedad cuántica persiste incluso al intentar manipularla.
 
 ESTRUCTURA:
 -----------
